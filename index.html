@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sunshine ❤️ Papa</title>
+
+<style>
+:root{
+  --bg1:#070a16;
+  --bg2:#1a0833;
+  --card: rgba(255,255,255,.08);
+  --text: rgba(255,255,255,.94);
+  --muted: rgba(255,255,255,.68);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: system-ui, -apple-system, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(800px 600px at 10% 10%, #ff4d6d22, transparent 60%),
+    radial-gradient(800px 600px at 90% 30%, #60a5fa22, transparent 55%),
+    linear-gradient(160deg, var(--bg1), var(--bg2));
+  overflow:hidden;
+}
+
+/* Floating Name */
+.floating-name{
+  position:fixed;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:10px 16px;
+  border-radius:999px;
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(10px);
+  font-weight:900;
+  animation: float 3s ease-in-out infinite;
+  z-index:5;
+}
+@keyframes float{
+  0%,100%{ transform:translateX(-50%) translateY(0)}
+  50%{ transform:translateX(-50%) translateY(8px)}
+}
+
+/* Hearts background */
+.hearts-bg{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+.heart{
+  position:absolute;
+  width:20px;
+  height:20px;
+  background: radial-gradient(circle,#ff4d6d,#a78bfa);
+  transform: rotate(45deg);
+  opacity:.3;
+  animation: rise 10s linear infinite;
+}
+.heart:before,
+.heart:after{
+  content:"";
+  position:absolute;
+  width:20px;
+  height:20px;
+  background: radial-gradient(circle,#ff4d6d,#a78bfa);
+  border-radius:50%;
+}
+.heart:before{ left:-10px; }
+.heart:after{ top:-10px; }
+
+@keyframes rise{
+  from{ top:110vh; }
+  to{ top:-20vh; opacity:0;}
+}
+
+/* Card */
+.card{
+  background:var(--card);
+  padding:30px 20px;
+  border-radius:20px;
+  text-align:center;
+  z-index:2;
+  backdrop-filter: blur(15px);
+}
+
+h1{margin-bottom:5px;}
+p{margin-top:0;color:var(--muted);}
+
+.buttons{
+  display:flex;
+  gap:15px;
+  justify-content:center;
+  margin-top:15px;
+  position:relative;
+  min-height:80px;
+}
+
+button{
+  padding:14px 20px;
+  border:none;
+  border-radius:14px;
+  font-weight:900;
+  font-size:18px;
+  cursor:pointer;
+  transition:.15s ease;
+}
+
+.yes{background:#22c55e;}
+.no{background:#ef4444; position:relative;}
+
+.dodger{ position:absolute !important; }
+
+.message{
+  margin-top:15px;
+  font-weight:900;
+}
+
+canvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:10;
+}
+</style>
+</head>
+
+<body>
+
+<div class="floating-name">Sunshine ❤️ Papa</div>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<canvas id="confetti"></canvas>
+
+<!-- Hidden music -->
+<div style="position:fixed;width:0;height:0;overflow:hidden;">
+<iframe id="bgMusic"
+src="https://www.youtube.com/embed/T3E9Wjbq44E?autoplay=1&loop=1&playlist=T3E9Wjbq44E&mute=1"
+allow="autoplay"></iframe>
+</div>
+
+<div class="card" id="card">
+<h1>Sunshine, will you be Papa’s Val? 💘</h1>
+<p>Don’t fear. Just press the right button 😌</p>
+
+<div class="buttons" id="wrap">
+<button id="yes" class="yes">Yes</button>
+<button id="no" class="no">No</button>
+</div>
+
+<div class="message" id="msg"></div>
+<div style="font-size:12px;color:#bbb;">Music starts after first tap</div>
+</div>
+
+<script>
+/* Hearts */
+for(let i=0;i<15;i++){
+  const h=document.createElement("div");
+  h.className="heart";
+  h.style.left=Math.random()*100+"vw";
+  h.style.animationDuration=8+Math.random()*8+"s";
+  document.getElementById("heartsBg").appendChild(h);
+}
+
+/* Music activation */
+let music=false;
+document.body.addEventListener("click",()=>{
+ if(music) return;
+ document.getElementById("bgMusic").src=
+ "https://www.youtube.com/embed/T3E9Wjbq44E?autoplay=1&loop=1&playlist=T3E9Wjbq44E";
+ music=true;
+});
+
+/* Buttons */
+const yes=document.getElementById("yes");
+const no=document.getElementById("no");
+const wrap=document.getElementById("wrap");
+const msg=document.getElementById("msg");
+const card=document.getElementById("card");
+
+let yesScale=1,noScale=1,noClicks=0;
+
+yes.style.setProperty("--scale",1);
+
+no.addEventListener("click",(e)=>{
+ noClicks++;
+ yesScale+=0.2;
+ noScale-=0.1;
+
+ yes.style.transform=`scale(${yesScale})`;
+ no.style.transform=`scale(${Math.max(.3,noScale)})`;
+
+ msg.textContent="System rejected your No 😭";
+
+ if(noClicks>=2){
+   no.classList.add("dodger");
+   const rect=wrap.getBoundingClientRect();
+   no.style.left=Math.random()*(rect.width-100)+"px";
+   no.style.top=Math.random()*30+"px";
+   card.style.animation="shake .15s linear";
+ }
+
+});
+
+yes.addEventListener("click",()=>{
+ msg.textContent="na God save you, my sunshine ☀️💛 — love, Papa";
+ confetti();
+});
+
+/* Confetti */
+const canvas=document.getElementById("confetti");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+let pieces=[];
+function confetti(){
+ for(let i=0;i<200;i++){
+  pieces.push({
+   x:innerWidth/2,
+   y:innerHeight/2,
+   vx:(Math.random()-0.5)*10,
+   vy:(Math.random()-1)*10,
+   life:100
+  });
+ }
+ animate();
+}
+function animate(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ pieces.forEach(p=>{
+   p.x+=p.vx;
+   p.y+=p.vy;
+   p.vy+=0.3;
+   p.life--;
+   ctx.fillStyle=`hsl(${Math.random()*360},100%,50%)`;
+   ctx.fillRect(p.x,p.y,5,5);
+ });
+ pieces=pieces.filter(p=>p.life>0);
+ if(pieces.length) requestAnimationFrame(animate);
+}
+</script>
+
+</body>
+</html>
